@@ -39,5 +39,5 @@ const errorHandler: ErrorRequestHandler = (
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`Beep Boop server is running on port ${PORT}`);
+  console.log(`Beep Boop server is running on port ${PORT}, http://localhost:3000/`);
 });
