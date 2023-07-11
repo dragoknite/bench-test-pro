@@ -8,7 +8,8 @@ import express, {
 import path from 'path'
 import axios from 'axios'
 const app : Express = express();
-const PORT = 3000;
+const PORT = 3000
+;
 
 // parse incoming JSON
 app.use(express.json());
@@ -22,6 +23,9 @@ app.get('/', (req: Request, res: Response) => {
 // app.get('/', (req: Request, res: Response) => {
 //   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 // });
+app.get('/test',(req: Request, res: Response) => {
+  res.send('Testing asdf Server'); 
+})
 
 app.post('/benchmark', async (req, res) => {
   const { requestType, url, requestBody, numRequests } = req.body;
@@ -87,5 +91,5 @@ const errorHandler: ErrorRequestHandler = (
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`Beep Boop server is running on port ${PORT}`);
+  console.log(`Beep Boop server is running on port ${PORT}, http://localhost:3000/`);
 });
