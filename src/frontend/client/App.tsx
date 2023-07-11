@@ -1,9 +1,22 @@
-import React from "react";
+import React ,{FC}from "react";
+// import { render } from 'react-dom';
 
-export default function App() {
+const App: FC = () => {
+  return (
+    <div>
+      <h1>Testing</h1>
+    </div>
+  )
+}
+
+export default App
+
+
+{/* export default function App() {
   return (
     <>
       <h1>Hello World!!!</h1>
     </>
   );
-}
+} */}
+

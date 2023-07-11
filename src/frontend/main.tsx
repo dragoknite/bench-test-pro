@@ -1,13 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import Ayooo from "./Getget";
-import App from "./App";
+import Ayooo from "./Ayooo";
 
 
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <App/>
-    {/* <Ayooo /> */}
+
+    <Ayooo />
   </React.StrictMode>
 );
