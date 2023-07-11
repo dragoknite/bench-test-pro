@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --watch ./ --exec ts-node src/backend/server.ts",
+    "dev": "nodemon",
+    "build": "tsc -p .",
     "express": "ts-node --transpile-only ./src/backend/server.ts"
   },
   "keywords": [],
