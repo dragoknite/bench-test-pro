@@ -6,7 +6,7 @@ import popResult from './pop';
 
 const StyledContainer = styled.div`
   width: 710px;
-  border: 5px ridge rgb(3, 45, 67);
+  border: 10px ridge rgb(25, 25, 25);
   /* Media query for smaller screens */
   @media (max-width: 700px) {
     min-width: 700px;
@@ -60,7 +60,7 @@ const StyleRequestBodyInput = styled.textarea`
 
 const StyledTableWrapper = styled.div`
   width: 690px;
-  border: 5px ridge rgb(3, 45, 67);
+  border: 5px ridge rgb(25, 25, 25);
 `;
 
 const StyledTable = styled.table`
@@ -109,6 +109,7 @@ function Ayooo() {
   const [sortDirection, setSortDirection] = useState('asc');
   const [timeDontShowSummary, setTimeDontShowSummary] = useState(true);
   const [selectedMethod, setSelectedMethod] = useState('GET');
+  const [timeDontRun, setTimeDontRun] = useState(false);
 
 
   const handleColumnClick = (column) => {
@@ -164,6 +165,7 @@ function Ayooo() {
   const handleRunRequest = () => {
     if(timeDontShowSummary === false){
       setTimeDontShowSummary(true);
+      setTimeDontRun(true);
     }
     if(selectedMethod === 'GET'){
       getDataFromAPI();
@@ -233,6 +235,7 @@ function Ayooo() {
       })
       .then(() => {
         setTimeDontShowSummary(false);
+        setTimeDontRun(false);
       })
       .catch((error) => {
       });
@@ -292,6 +295,7 @@ function Ayooo() {
       })
       .then(() => {
         setTimeDontShowSummary(false);
+        setTimeDontRun(false);
       })
       .catch((error) => {
       });
@@ -351,6 +355,7 @@ function Ayooo() {
       })
       .then(() => {
         setTimeDontShowSummary(false);
+        setTimeDontRun(false);
       })
       .catch((error) => {
       });
@@ -410,6 +415,7 @@ function Ayooo() {
       })
       .then(() => {
         setTimeDontShowSummary(false);
+        setTimeDontRun(false);
       })
       .catch((error) => {
       });
@@ -467,6 +473,7 @@ function Ayooo() {
       })
       .then(() => {
         setTimeDontShowSummary(false);
+        setTimeDontRun(false);
       })
       .catch((error) => {
       });
@@ -547,7 +554,7 @@ function Ayooo() {
           value={sampleCount}
           onChange={(e) => setSampleCount(parseInt(e.target.value))}
           />
-          <button id="run-request-button" onClick={handleRunRequest}>
+          <button id="run-request-button" onClick={handleRunRequest} disabled={timeDontRun}>
             Run Request
           </button>
           <button id="show-result-button" onClick={handleShowResult} disabled={timeDontShowSummary}>
