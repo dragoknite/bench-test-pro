@@ -1,16 +1,65 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
+import ReactDOM from 'react-dom';
+import popResult from './pop';
 
+
+const StyledContainer = styled.div`
+  width: 710px;
+  border: 5px ridge rgb(3, 45, 67);
+  /* Media query for smaller screens */
+  @media (max-width: 700px) {
+    min-width: 700px;
+  }
+`;
+const StyledSubContainer = styled.div`
+
+  width: 700px;
+  margin: 5px;
+`;
+
+
+const StyledParaDiv = styled.div`
+  display: inline-block;
+  vertical-align: top;
+`;
+const StyledParaDiv2 = styled.div`
+  display: inline-block;
+  vertical-align: top;
+  margin-left: 10px;
+`;
+
+
+
+const StyledSmallDiv = styled.div`
+  margin: 15px 0px;
+  display: flex;
+
+`;
+
+
+const StyledApiURLinput = styled.input`
+  width: 400px;
+  font-size: 12px;
+`;
+const StyledSampleinput = styled.input`
+  width: 75px;
+  font-size: 12px;
+`;
+
+const StyledDropDownOption = styled.select`
+  font-size: 12px;
+  width: 85px;
+`;
 
 const StyleRequestBodyInput = styled.textarea`
-  width: 35%;
+  width: 400px;
   height: 200px;
   font-size: 12px;
 `;
 
 const StyledTableWrapper = styled.div`
-  width: 100%;
-  overflow-x: auto;
+  width: 690px;
   border: 5px ridge rgb(3, 45, 67);
 `;
 
@@ -49,6 +98,8 @@ const StyledTd = styled.td`
     vertical-align: middle;
 `;
 
+
+
 function Ayooo() {
   const [apiUrl, setApiUrl] = useState('');
   const [sampleCount, setSampleCount] = useState(1);
@@ -56,6 +107,9 @@ function Ayooo() {
   const [requestBody, setRequestBody] = useState('');
   const [sortColumn, setSortColumn] = useState('');
   const [sortDirection, setSortDirection] = useState('asc');
+  const [timeDontShowSummary, setTimeDontShowSummary] = useState(true);
+  const [selectedMethod, setSelectedMethod] = useState('GET');
+
 
   const handleColumnClick = (column) => {
     if (sortColumn === column) {
@@ -83,7 +137,50 @@ function Ayooo() {
   }
 
 
+  const handleShowResult = () => {
+  
+    const analysisWindow = window.open('', 'Analysis', 'width=800,height=600');
 
+    // const styles = `
+    // body {
+    //   background-color: red;
+    // }
+    // `
+
+    // const styleElement = analysisWindow.document.createElement('style')
+    // styleElement.textContent = styles;
+    // analysisWindow.document.head.appendChild(styleElement)
+  
+    const popResultElement = React.createElement(popResult, {
+      sortedRows: sortedRows,
+      sampleCount: sampleCount,
+    });
+  
+    ReactDOM.render(popResultElement, analysisWindow.document.body);
+  
+
+  };
+  
+  const handleRunRequest = () => {
+    if(timeDontShowSummary === false){
+      setTimeDontShowSummary(true);
+    }
+    if(selectedMethod === 'GET'){
+      getDataFromAPI();
+    }
+    else if(selectedMethod === 'POST'){
+      postDataToAPI();
+    }
+    else if(selectedMethod === 'PUT'){
+      putDataToAPI();
+    }
+    else if(selectedMethod === 'PATCH'){
+      patchDataToAPI();
+    }
+    else if(selectedMethod === 'DELETE'){
+      deleteDataFromAPI();
+    }
+  }
   const getDataFromAPI = () => {
     if (apiUrl === '') {
       alert('Please enter the API URL.');
@@ -134,6 +231,9 @@ function Ayooo() {
         console.log('All samples completed.');
         setConnectTimes((prevTimes) => [...prevTimes.sort((a, b) => a.id - b.id)]);
       })
+      .then(() => {
+        setTimeDontShowSummary(false);
+      })
       .catch((error) => {
       });
   };
@@ -158,14 +258,15 @@ function Ayooo() {
         .then((response) => {
           // Stop measuring the connect time
           const connectEndTime = performance.now();
-
+      
           // Calculate the connect time in milliseconds
           const connectTime = connectEndTime - connectStartTime;
-
+          const sendSize = new Blob([requestBody]).size;
+      
           return response.blob().then((blob) => {
             setConnectTimes((prevTimes) => [
               ...prevTimes,
-              { id: sampleId, time: connectTime.toFixed(2), sendByte: 0, receivedByte: blob.size },
+              { id: sampleId, time: connectTime.toFixed(2), sendByte: sendSize, receivedByte: blob.size },
             ]);
           });
         })
@@ -188,6 +289,9 @@ function Ayooo() {
       .then(() => {
         console.log('All samples completed.');
         setConnectTimes((prevTimes) => [...prevTimes.sort((a, b) => a.id - b.id)]);
+      })
+      .then(() => {
+        setTimeDontShowSummary(false);
       })
       .catch((error) => {
       });
@@ -213,14 +317,15 @@ function Ayooo() {
         .then((response) => {
           // Stop measuring the connect time
           const connectEndTime = performance.now();
-
+      
           // Calculate the connect time in milliseconds
           const connectTime = connectEndTime - connectStartTime;
-
+          const sendSize = new Blob([requestBody]).size;
+      
           return response.blob().then((blob) => {
             setConnectTimes((prevTimes) => [
               ...prevTimes,
-              { id: sampleId, time: connectTime.toFixed(2), sendByte: 0, receivedByte: blob.size },
+              { id: sampleId, time: connectTime.toFixed(2), sendByte: sendSize, receivedByte: blob.size },
             ]);
           });
         })
@@ -243,6 +348,9 @@ function Ayooo() {
       .then(() => {
         console.log('All samples completed.');
         setConnectTimes((prevTimes) => [...prevTimes.sort((a, b) => a.id - b.id)]);
+      })
+      .then(() => {
+        setTimeDontShowSummary(false);
       })
       .catch((error) => {
       });
@@ -268,14 +376,15 @@ function Ayooo() {
         .then((response) => {
           // Stop measuring the connect time
           const connectEndTime = performance.now();
-
+      
           // Calculate the connect time in milliseconds
           const connectTime = connectEndTime - connectStartTime;
-
+          const sendSize = new Blob([requestBody]).size;
+      
           return response.blob().then((blob) => {
             setConnectTimes((prevTimes) => [
               ...prevTimes,
-              { id: sampleId, time: connectTime.toFixed(2), sendByte: 0, receivedByte: blob.size },
+              { id: sampleId, time: connectTime.toFixed(2), sendByte: sendSize, receivedByte: blob.size },
             ]);
           });
         })
@@ -298,6 +407,9 @@ function Ayooo() {
       .then(() => {
         console.log('All samples completed.');
         setConnectTimes((prevTimes) => [...prevTimes.sort((a, b) => a.id - b.id)]);
+      })
+      .then(() => {
+        setTimeDontShowSummary(false);
       })
       .catch((error) => {
       });
@@ -353,86 +465,154 @@ function Ayooo() {
         console.log('All samples completed.');
         setConnectTimes((prevTimes) => [...prevTimes.sort((a, b) => a.id - b.id)]);
       })
+      .then(() => {
+        setTimeDontShowSummary(false);
+      })
       .catch((error) => {
       });
   };
+  // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// //
+  // When closing the pop-out analysis window, an 'ResizeObserver loop limit exceeded' error is encountered, originating from the React chart component.
+  // Currently, a proper solution for this issue is not available as of 07/12/2023.
+  // This useEffect is implemented to handle the error gracefully and allow users to continue using the app.
+  useEffect(() => {
+    window.addEventListener('error', e => {
+        if (e.message === 'ResizeObserver loop limit exceeded') {
+            const resizeObserverErrDiv = document.getElementById(
+                'webpack-dev-server-client-overlay-div'
+            );
+            const resizeObserverErr = document.getElementById(
+                'webpack-dev-server-client-overlay'
+            );
+            if (resizeObserverErr) {
+                resizeObserverErr.setAttribute('style', 'display: none');
+            }
+            if (resizeObserverErrDiv) {
+                resizeObserverErrDiv.setAttribute('style', 'display: none');
+            }
+        }
+    });
+  }, []);
+  // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// //
+
+
+ const handleFetch = async () => {
+    try{
+      const response = await fetch('/test', {
+        method: 'GET',
+      })
+      const allData = await response
+      console.log(allData)
+    }catch(err){
+      console.log(err)
+    }
+ }
+  
 
   return (
-    <div>
-      <h1>REST API Request Loading Test</h1>
-      <label htmlFor="api-url">API URL:</label>
-      <input
-        type="text"
-        id="api-url"
-        name="api-url"
-        placeholder="Enter API endpoint URL"
-        value={apiUrl}
-        onChange={(e) => setApiUrl(e.target.value)}
-      />
-      <br />
-      <label htmlFor="sample-count">Sample Count:</label>
-      <input
-        type="number"
-        id="sample-count"
-        name="sample-count"
-        min="1"
-        value={sampleCount}
-        onChange={(e) => setSampleCount(parseInt(e.target.value))}
-      />
-      <button id="get-data-button" onClick={getDataFromAPI}>
-        GET Data
-      </button>
-      <br />
-      <label htmlFor="request-body">Request Body:</label>
-      <StyleRequestBodyInput
-        id="request-body"
-        name="request-body"
-        placeholder="Enter request body"
-        value={requestBody}
-        onChange={(e) => setRequestBody(e.target.value)}
-      ></StyleRequestBodyInput>
-      <button id="post-data-button" onClick={postDataToAPI}>
-        POST Data
-      </button>
-      <button id="put-data-button" onClick={putDataToAPI}>
-        PUT Data
-      </button>
-      <button id="patch-data-button" onClick={patchDataToAPI}>
-        PATCH Data
-      </button>
-      <button id="delete-data-button" onClick={deleteDataFromAPI}>
-        DELETE Data
-      </button>
-      <div>
-      <StyledTableWrapper>
-        <StyledTable>
-          <table>
-            <thead>
-              <tr>
-              <StyledTh onClick={() => handleColumnClick('id')}>Sample #</StyledTh>
-              <StyledTh onClick={() => handleColumnClick('time')}>Connect Time (ms)</StyledTh>
-              <StyledTh onClick={() => handleColumnClick('sendByte')}>SendByte</StyledTh>
-              <StyledTh onClick={() => handleColumnClick('receivedByte')}>ReceivedByte</StyledTh>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedRows
+    <StyledContainer>
+      <StyledSubContainer>
 
-                .map((sample) => (
-                  <tr key={sample.id} style={{ color: sample.time === 'no response' ? 'red' : 'rgb(25, 125, 35)' }}>
+      <h1>REST API Request Loading Test</h1>     
+      <StyledParaDiv>
+        <StyledSmallDiv>
+          <label>HTTP Method Selection: </label><br />
+        </StyledSmallDiv>
+        <StyledSmallDiv>
+          <label htmlFor="api-url">API URL:</label><br />
+        </StyledSmallDiv>
+        <StyledSmallDiv>
+          <label htmlFor="sample-count" style={{margin:'2px 0px 0px 0px'}}>Sample Count:</label><br />
+        </StyledSmallDiv>
+        <StyledSmallDiv>
+          <label htmlFor="request-body" style={{margin:'3px 0px 0px 0px'}}>Request Body:</label><br />
+        </StyledSmallDiv>
+      </StyledParaDiv>
+      <StyledParaDiv2>
+        <StyledSmallDiv>
+          <StyledDropDownOption value={selectedMethod} onChange={(e) => setSelectedMethod(e.target.value)}>
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="PATCH">PATCH</option>
+            <option value="DELETE">DELETE</option>
+          </StyledDropDownOption><br />
+        </StyledSmallDiv>
+        <StyledSmallDiv>
+          <StyledApiURLinput
+          type="text"
+          id="api-url"
+          name="api-url"
+          placeholder="Enter API endpoint URL"
+          value={apiUrl}
+          onChange={(e) => setApiUrl(e.target.value)}
+          /><br />
+        </StyledSmallDiv>
+        <StyledSmallDiv>
+          <StyledSampleinput
+          type="number"
+          id="sample-count"
+          name="sample-count"
+          min="1"
+          value={sampleCount}
+          onChange={(e) => setSampleCount(parseInt(e.target.value))}
+          />
+          <button id="run-request-button" onClick={handleRunRequest}>
+            Run Request
+          </button>
+          <button id="show-result-button" onClick={handleShowResult} disabled={timeDontShowSummary}>
+            Show Analyzation
+          </button>
+          <br />
+        </StyledSmallDiv>
+        <StyledSmallDiv>
+          <StyleRequestBodyInput
+          id="request-body"
+          name="request-body"
+          placeholder="Enter request body"
+          value={requestBody}
+          onChange={(e) => setRequestBody(e.target.value)}
+          ></StyleRequestBodyInput>
+        </StyledSmallDiv>
+      </StyledParaDiv2>
+      
+      <div>
+        <StyledTableWrapper>
+          <StyledTable>
+            <table>
+              <thead>
+                <tr>
+                  <StyledTh onClick={() => handleColumnClick('id')}>Sample #</StyledTh>
+                  <StyledTh onClick={() => handleColumnClick('time')}>Connect Time (ms)</StyledTh>
+                  <StyledTh onClick={() => handleColumnClick('sendByte')}>SendByte</StyledTh>
+                  <StyledTh onClick={() => handleColumnClick('receivedByte')}>ReceivedByte</StyledTh>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedRows.map((sample) => (
+                  <tr
+                    key={sample.id}
+                    style={{ color: sample.time === 'no response' ? 'red' : 'rgb(25, 125, 35)' }}
+                  >
                     <StyledTd>{sample.id + 1}</StyledTd>
-                    <StyledTd>{sample.time === 'no response' ? 'No Response' : `${sample.time} ms`}</StyledTd>
+                    <StyledTd>
+                      {sample.time === 'no response' ? 'No Response' : `${sample.time} ms`}
+                    </StyledTd>
                     <StyledTd>{sample.sendByte}</StyledTd>
                     <StyledTd>{sample.receivedByte}</StyledTd>
                   </tr>
                 ))}
-            </tbody>
-          </table>
-        </StyledTable>
-      </StyledTableWrapper>
+              </tbody>
+            </table>
+          </StyledTable>
+        </StyledTableWrapper>
+      <h1>Sign in</h1>    
+      <a class="button google" href="/test">Sign in with Google</a>
+      <button onClick = {handleFetch}>Sign in with Google2</button>
       </div>
-    </div>
+      </StyledSubContainer>
+    </StyledContainer>
+    
   );
 }
-
 export default Ayooo;

@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 import express, {
   Request,
   Response,
@@ -8,12 +10,35 @@ import express, {
 import path from 'path'
 import axios from 'axios'
 const app : Express = express();
-const PORT = 3000
+const PORT = 8080
 ;
+import cookieParser  from 'cookie-parser'
+var session = require('express-session');
+var SQLiteStore = require('connect-sqlite3')(session);
+
+const indexRouter = require('./routes/index');
+const authRouter = require('./routes/auth');
 
 // parse incoming JSON
 app.use(express.json());
+app.use(express.urlencoded({extended:false}))
+app.use(cookieParser())
 
+
+app.get('/login/federated/google', (req: Request, res: Response) => {
+  res.send('Testing server login')
+})
+
+// app.use('/', indexRouter);
+// app.use('/', authRouter);
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: false,
+  store: new SQLiteStore({ db: 'sessions.db', dir: './var/db' })
+}));
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Testing Express Server');
@@ -24,7 +49,7 @@ app.get('/', (req: Request, res: Response) => {
 //   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 // });
 app.get('/test',(req: Request, res: Response) => {
-  res.send('Testing asdf Server'); 
+  res.send("testing")
 })
 
 app.post('/benchmark', async (req, res) => {
@@ -58,7 +83,7 @@ app.post('/benchmark', async (req, res) => {
           const executionTime = Date.now() - startTime
           return {
             message: 'Request Failed -------------------------------- ', executionTime,
-            error: error.message
+            error: error
           }
         }
       })
