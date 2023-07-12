@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon & webpack-dev-server",
     "build": "tsc --outDir ./dist",
+    "start": "node ./dist/backend/server.js",
     "express": "ts-node --transpile-only ./src/backend/server.ts"
   },
   "keywords": [],
