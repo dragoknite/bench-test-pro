@@ -158,14 +158,15 @@ function Ayooo() {
         .then((response) => {
           // Stop measuring the connect time
           const connectEndTime = performance.now();
-
+      
           // Calculate the connect time in milliseconds
           const connectTime = connectEndTime - connectStartTime;
-
+          const sendSize = new Blob([requestBody]).size;
+      
           return response.blob().then((blob) => {
             setConnectTimes((prevTimes) => [
               ...prevTimes,
-              { id: sampleId, time: connectTime.toFixed(2), sendByte: 0, receivedByte: blob.size },
+              { id: sampleId, time: connectTime.toFixed(2), sendByte: sendSize, receivedByte: blob.size },
             ]);
           });
         })
@@ -213,14 +214,15 @@ function Ayooo() {
         .then((response) => {
           // Stop measuring the connect time
           const connectEndTime = performance.now();
-
+      
           // Calculate the connect time in milliseconds
           const connectTime = connectEndTime - connectStartTime;
-
+          const sendSize = new Blob([requestBody]).size;
+      
           return response.blob().then((blob) => {
             setConnectTimes((prevTimes) => [
               ...prevTimes,
-              { id: sampleId, time: connectTime.toFixed(2), sendByte: 0, receivedByte: blob.size },
+              { id: sampleId, time: connectTime.toFixed(2), sendByte: sendSize, receivedByte: blob.size },
             ]);
           });
         })
@@ -268,14 +270,15 @@ function Ayooo() {
         .then((response) => {
           // Stop measuring the connect time
           const connectEndTime = performance.now();
-
+      
           // Calculate the connect time in milliseconds
           const connectTime = connectEndTime - connectStartTime;
-
+          const sendSize = new Blob([requestBody]).size;
+      
           return response.blob().then((blob) => {
             setConnectTimes((prevTimes) => [
               ...prevTimes,
-              { id: sampleId, time: connectTime.toFixed(2), sendByte: 0, receivedByte: blob.size },
+              { id: sampleId, time: connectTime.toFixed(2), sendByte: sendSize, receivedByte: blob.size },
             ]);
           });
         })
