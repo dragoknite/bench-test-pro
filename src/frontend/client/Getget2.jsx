@@ -1,11 +1,186 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import styled, { keyframes, css } from 'styled-components';
+import ReactDOM from 'react-dom';
+import popResult from './pop';
+
+
+const StyledContainer = styled.div`
+  width: 710px;
+  border: 5px ridge rgb(3, 45, 67);
+  /* Media query for smaller screens */
+  @media (max-width: 700px) {
+    min-width: 700px;
+  }
+`;
+const StyledSubContainer = styled.div`
+
+  width: 700px;
+  margin: 5px;
+`;
+
+
+const StyledParaDiv = styled.div`
+  display: inline-block;
+  vertical-align: top;
+`;
+const StyledParaDiv2 = styled.div`
+  display: inline-block;
+  vertical-align: top;
+  margin-left: 10px;
+`;
+
+
+
+const StyledSmallDiv = styled.div`
+  margin: 15px 0px;
+  display: flex;
+
+`;
+
+
+const StyledApiURLinput = styled.input`
+  width: 400px;
+  font-size: 12px;
+`;
+const StyledSampleinput = styled.input`
+  width: 75px;
+  font-size: 12px;
+`;
+
+const StyledDropDownOption = styled.select`
+  font-size: 12px;
+  width: 85px;
+`;
+
+const StyleRequestBodyInput = styled.textarea`
+  width: 400px;
+  height: 200px;
+  font-size: 12px;
+`;
+
+const StyledTableWrapper = styled.div`
+  width: 690px;
+  border: 5px ridge rgb(3, 45, 67);
+`;
+
+const StyledTable = styled.table`
+  min-width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin: 3px;
+`;
+
+const StyledTh = styled.th`
+  position: relative;
+  width: 150px;
+  border: 1px solid #555;
+  background-color: rgb(0, 10, 30);
+  color: #fff;
+  padding: 8px;
+  cursor: pointer;
+  font-size: 16px;
+
+  > div {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    resize: horizontal;
+    padding-right: 16px;
+    box-sizing: border-box;
+  }
+`;
+
+const StyledTd = styled.td`
+    border: 1px solid #555;
+    padding: 5px 8px;
+    font-size: 15px;
+    text-align: center;
+    vertical-align: middle;
+`;
+
+
 
 function Ayooo() {
   const [apiUrl, setApiUrl] = useState('');
   const [sampleCount, setSampleCount] = useState(1);
-  const [sendBytes, setSendBytes] = useState([]);
   const [connectTimes, setConnectTimes] = useState([]);
+  const [requestBody, setRequestBody] = useState('');
+  const [sortColumn, setSortColumn] = useState('');
+  const [sortDirection, setSortDirection] = useState('asc');
+  const [timeDontShowSummary, setTimeDontShowSummary] = useState(true);
+  const [selectedMethod, setSelectedMethod] = useState('GET');
 
+
+  const handleColumnClick = (column) => {
+    if (sortColumn === column) {
+      // Toggle sort direction if the same column is clicked
+      setSortDirection((prevDirection) => (prevDirection === 'asc' ? 'desc' : 'asc'));
+    } else {
+      // Sort by the clicked column in ascending order by default
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+  const sortedRows = [...connectTimes];
+  if (sortColumn) {
+    sortedRows.sort((a, b) => {
+      const valueA = a[sortColumn];
+      const valueB = b[sortColumn];
+      if (valueA < valueB) {
+        return sortDirection === 'asc' ? -1 : 1;
+      }
+      if (valueA > valueB) {
+        return sortDirection === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }
+
+
+  const handleShowResult = () => {
+  
+    const analysisWindow = window.open('', 'Analysis', 'width=800,height=600');
+
+    // const styles = `
+    // body {
+    //   background-color: red;
+    // }
+    // `
+
+    // const styleElement = analysisWindow.document.createElement('style')
+    // styleElement.textContent = styles;
+    // analysisWindow.document.head.appendChild(styleElement)
+  
+    const popResultElement = React.createElement(popResult, {
+      sortedRows: sortedRows,
+      sampleCount: sampleCount,
+    });
+  
+    ReactDOM.render(popResultElement, analysisWindow.document.body);
+  
+
+  };
+  
+  const handleRunRequest = () => {
+    if(timeDontShowSummary === false){
+      setTimeDontShowSummary(true);
+    }
+    if(selectedMethod === 'GET'){
+      getDataFromAPI();
+    }
+    else if(selectedMethod === 'POST'){
+      postDataToAPI();
+    }
+    else if(selectedMethod === 'PUT'){
+      putDataToAPI();
+    }
+    else if(selectedMethod === 'PATCH'){
+      patchDataToAPI();
+    }
+    else if(selectedMethod === 'DELETE'){
+      deleteDataFromAPI();
+    }
+  }
   const getDataFromAPI = () => {
     if (apiUrl === '') {
       alert('Please enter the API URL.');
@@ -17,7 +192,9 @@ function Ayooo() {
       return;
     }
 
-    const fetchData = () => {
+    setConnectTimes([]); // Reset the table result
+
+    const fetchData = (sampleId) => {
       const connectStartTime = performance.now(); // Start measuring the connect time
 
       return fetch(apiUrl, { method: 'GET' })
@@ -27,73 +204,401 @@ function Ayooo() {
 
           // Calculate the connect time in milliseconds
           const connectTime = connectEndTime - connectStartTime;
-          setConnectTimes((prevTimes) => [...prevTimes, connectTime.toFixed(2)]);
 
           return response.blob().then((blob) => {
-            setSendBytes((prevBytes) => [...prevBytes, blob.size]);
-
-            // Use the retrieved data and header values as needed
+            setConnectTimes((prevTimes) => [
+              ...prevTimes,
+              { id: sampleId, time: connectTime.toFixed(2), sendByte: 0, receivedByte: blob.size },
+            ]);
           });
         })
         .catch((error) => {
-          console.error('Error:', error);
+          setConnectTimes((prevTimes) => [
+            ...prevTimes,
+            { id: sampleId, time: 'no response', sendByte: 0, receivedByte: 0 },
+          ]);
         });
     };
 
     const fetchDataPromises = [];
 
     for (let i = 0; i < sampleCount; i++) {
-      fetchDataPromises.push(fetchData());
+      fetchDataPromises.push(fetchData(i));
     }
 
     Promise.all(fetchDataPromises)
       .then(() => {
         console.log('All samples completed.');
+        setConnectTimes((prevTimes) => [...prevTimes.sort((a, b) => a.id - b.id)]);
+      })
+      .then(() => {
+        setTimeDontShowSummary(false);
       })
       .catch((error) => {
-        console.error('Error:', error);
       });
   };
 
+  const postDataToAPI = () => {
+    if (apiUrl === '') {
+      alert('Please enter the API URL.');
+      return;
+    }
+
+    if (requestBody === '') {
+      alert('Please enter the request body.');
+      return;
+    }
+
+    setConnectTimes([]); // Reset the table result
+
+    const fetchData = (sampleId) => {
+      const connectStartTime = performance.now(); // Start measuring the connect time
+
+      return fetch(apiUrl, { method: 'POST', body: requestBody })
+        .then((response) => {
+          // Stop measuring the connect time
+          const connectEndTime = performance.now();
+      
+          // Calculate the connect time in milliseconds
+          const connectTime = connectEndTime - connectStartTime;
+          const sendSize = new Blob([requestBody]).size;
+      
+          return response.blob().then((blob) => {
+            setConnectTimes((prevTimes) => [
+              ...prevTimes,
+              { id: sampleId, time: connectTime.toFixed(2), sendByte: sendSize, receivedByte: blob.size },
+            ]);
+          });
+        })
+        .catch((error) => {
+          setConnectTimes((prevTimes) => [
+            ...prevTimes,
+            { id: sampleId, time: 'no response', sendByte: 0, receivedByte: 0 },
+          ]);
+        });
+    };
+    
+
+    const fetchDataPromises = [];
+
+    for (let i = 0; i < sampleCount; i++) {
+      fetchDataPromises.push(fetchData(i));
+    }
+
+    Promise.all(fetchDataPromises)
+      .then(() => {
+        console.log('All samples completed.');
+        setConnectTimes((prevTimes) => [...prevTimes.sort((a, b) => a.id - b.id)]);
+      })
+      .then(() => {
+        setTimeDontShowSummary(false);
+      })
+      .catch((error) => {
+      });
+  };
+
+  const patchDataToAPI = () => {
+    if (apiUrl === '') {
+      alert('Please enter the API URL.');
+      return;
+    }
+
+    if (requestBody === '') {
+      alert('Please enter the request body.');
+      return;
+    }
+
+    setConnectTimes([]); // Reset the table result
+
+    const fetchData = (sampleId) => {
+      const connectStartTime = performance.now(); // Start measuring the connect time
+
+      return fetch(apiUrl, { method: 'PATCH', body: requestBody })
+        .then((response) => {
+          // Stop measuring the connect time
+          const connectEndTime = performance.now();
+      
+          // Calculate the connect time in milliseconds
+          const connectTime = connectEndTime - connectStartTime;
+          const sendSize = new Blob([requestBody]).size;
+      
+          return response.blob().then((blob) => {
+            setConnectTimes((prevTimes) => [
+              ...prevTimes,
+              { id: sampleId, time: connectTime.toFixed(2), sendByte: sendSize, receivedByte: blob.size },
+            ]);
+          });
+        })
+        .catch((error) => {
+          setConnectTimes((prevTimes) => [
+            ...prevTimes,
+            { id: sampleId, time: 'no response', sendByte: 0, receivedByte: 0 },
+          ]);
+        });
+    };
+    
+
+    const fetchDataPromises = [];
+
+    for (let i = 0; i < sampleCount; i++) {
+      fetchDataPromises.push(fetchData(i));
+    }
+
+    Promise.all(fetchDataPromises)
+      .then(() => {
+        console.log('All samples completed.');
+        setConnectTimes((prevTimes) => [...prevTimes.sort((a, b) => a.id - b.id)]);
+      })
+      .then(() => {
+        setTimeDontShowSummary(false);
+      })
+      .catch((error) => {
+      });
+  };
+
+  const putDataToAPI = () => {
+    if (apiUrl === '') {
+      alert('Please enter the API URL.');
+      return;
+    }
+
+    if (requestBody === '') {
+      alert('Please enter the request body.');
+      return;
+    }
+
+    setConnectTimes([]); // Reset the table result
+
+    const fetchData = (sampleId) => {
+      const connectStartTime = performance.now(); // Start measuring the connect time
+
+      return fetch(apiUrl, { method: 'PUT', body: requestBody })
+        .then((response) => {
+          // Stop measuring the connect time
+          const connectEndTime = performance.now();
+      
+          // Calculate the connect time in milliseconds
+          const connectTime = connectEndTime - connectStartTime;
+          const sendSize = new Blob([requestBody]).size;
+      
+          return response.blob().then((blob) => {
+            setConnectTimes((prevTimes) => [
+              ...prevTimes,
+              { id: sampleId, time: connectTime.toFixed(2), sendByte: sendSize, receivedByte: blob.size },
+            ]);
+          });
+        })
+        .catch((error) => {
+          setConnectTimes((prevTimes) => [
+            ...prevTimes,
+            { id: sampleId, time: 'no response', sendByte: 0, receivedByte: 0 },
+          ]);
+        });
+    };
+    
+
+    const fetchDataPromises = [];
+
+    for (let i = 0; i < sampleCount; i++) {
+      fetchDataPromises.push(fetchData(i));
+    }
+
+    Promise.all(fetchDataPromises)
+      .then(() => {
+        console.log('All samples completed.');
+        setConnectTimes((prevTimes) => [...prevTimes.sort((a, b) => a.id - b.id)]);
+      })
+      .then(() => {
+        setTimeDontShowSummary(false);
+      })
+      .catch((error) => {
+      });
+  };
+
+  const deleteDataFromAPI = () => {
+    if (apiUrl === '') {
+      alert('Please enter the API URL.');
+      return;
+    }
+
+    if (isNaN(sampleCount) || sampleCount <= 0) {
+      alert('Please enter a valid sample count greater than zero.');
+      return;
+    }
+
+    setConnectTimes([]); // Reset the table result
+
+    const fetchData = (sampleId) => {
+      const connectStartTime = performance.now(); // Start measuring the connect time
+
+      return fetch(apiUrl, { method: 'DELETE' })
+        .then((response) => {
+          // Stop measuring the connect time
+          const connectEndTime = performance.now();
+
+          // Calculate the connect time in milliseconds
+          const connectTime = connectEndTime - connectStartTime;
+
+          return response.blob().then((blob) => {
+            setConnectTimes((prevTimes) => [
+              ...prevTimes,
+              { id: sampleId, time: connectTime.toFixed(2), sendByte: 0, receivedByte: blob.size },
+            ]);
+          });
+        })
+        .catch((error) => {
+          setConnectTimes((prevTimes) => [
+            ...prevTimes,
+            { id: sampleId, time: 'no response', sendByte: 0, receivedByte: 0 },
+          ]);
+        });
+    };
+
+    const fetchDataPromises = [];
+
+    for (let i = 0; i < sampleCount; i++) {
+      fetchDataPromises.push(fetchData(i));
+    }
+
+    Promise.all(fetchDataPromises)
+      .then(() => {
+        console.log('All samples completed.');
+        setConnectTimes((prevTimes) => [...prevTimes.sort((a, b) => a.id - b.id)]);
+      })
+      .then(() => {
+        setTimeDontShowSummary(false);
+      })
+      .catch((error) => {
+      });
+  };
+  // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// //
+  // When closing the pop-out analysis window, an 'ResizeObserver loop limit exceeded' error is encountered, originating from the React chart component.
+  // Currently, a proper solution for this issue is not available as of 07/12/2023.
+  // This useEffect is implemented to handle the error gracefully and allow users to continue using the app.
+  useEffect(() => {
+    window.addEventListener('error', e => {
+        if (e.message === 'ResizeObserver loop limit exceeded') {
+            const resizeObserverErrDiv = document.getElementById(
+                'webpack-dev-server-client-overlay-div'
+            );
+            const resizeObserverErr = document.getElementById(
+                'webpack-dev-server-client-overlay'
+            );
+            if (resizeObserverErr) {
+                resizeObserverErr.setAttribute('style', 'display: none');
+            }
+            if (resizeObserverErrDiv) {
+                resizeObserverErrDiv.setAttribute('style', 'display: none');
+            }
+        }
+    });
+  }, []);
+  // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// //
+
+
+ 
+  
+
   return (
-    <div>
-      <h1>REST API Request Example</h1>
-      <label htmlFor="api-url">API URL:</label>
-      <input
-        type="text"
-        id="api-url"
-        name="api-url"
-        placeholder="Enter API endpoint URL"
-        value={apiUrl}
-        onChange={(e) => setApiUrl(e.target.value)}
-      />
-      <br />
-      <label htmlFor="sample-count">Sample Count:</label>
-      <input
-        type="number"
-        id="sample-count"
-        name="sample-count"
-        min="1"
-        value={sampleCount}
-        onChange={(e) => setSampleCount(parseInt(e.target.value))}
-      />
-      <button id="get-data-button" onClick={getDataFromAPI}>
-        Get Data
-      </button>
+    <StyledContainer>
+      <StyledSubContainer>
+
+      <h1>REST API Request Loading Test</h1>     
+      <StyledParaDiv>
+        <StyledSmallDiv>
+          <label>HTTP Method Selection: </label><br />
+        </StyledSmallDiv>
+        <StyledSmallDiv>
+          <label htmlFor="api-url">API URL:</label><br />
+        </StyledSmallDiv>
+        <StyledSmallDiv>
+          <label htmlFor="sample-count" style={{margin:'2px 0px 0px 0px'}}>Sample Count:</label><br />
+        </StyledSmallDiv>
+        <StyledSmallDiv>
+          <label htmlFor="request-body" style={{margin:'3px 0px 0px 0px'}}>Request Body:</label><br />
+        </StyledSmallDiv>
+      </StyledParaDiv>
+      <StyledParaDiv2>
+        <StyledSmallDiv>
+          <StyledDropDownOption value={selectedMethod} onChange={(e) => setSelectedMethod(e.target.value)}>
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="PATCH">PATCH</option>
+            <option value="DELETE">DELETE</option>
+          </StyledDropDownOption><br />
+        </StyledSmallDiv>
+        <StyledSmallDiv>
+          <StyledApiURLinput
+          type="text"
+          id="api-url"
+          name="api-url"
+          placeholder="Enter API endpoint URL"
+          value={apiUrl}
+          onChange={(e) => setApiUrl(e.target.value)}
+          /><br />
+        </StyledSmallDiv>
+        <StyledSmallDiv>
+          <StyledSampleinput
+          type="number"
+          id="sample-count"
+          name="sample-count"
+          min="1"
+          value={sampleCount}
+          onChange={(e) => setSampleCount(parseInt(e.target.value))}
+          />
+          <button id="run-request-button" onClick={handleRunRequest}>
+            Run Request
+          </button>
+          <button id="show-result-button" onClick={handleShowResult} disabled={timeDontShowSummary}>
+            Show Analyzation
+          </button>
+          <br />
+        </StyledSmallDiv>
+        <StyledSmallDiv>
+          <StyleRequestBodyInput
+          id="request-body"
+          name="request-body"
+          placeholder="Enter request body"
+          value={requestBody}
+          onChange={(e) => setRequestBody(e.target.value)}
+          ></StyleRequestBodyInput>
+        </StyledSmallDiv>
+      </StyledParaDiv2>
+      
       <div>
-        <h2>Response Header Values:</h2>
-        <p>
-          Send Byte: <span>{sendBytes.join(', ')} bytes</span>
-        </p>
-        <p>
-          Total Bytes: <span>{/* Calculate and display total bytes here */}</span>
-        </p>
-        <p>
-          Connect Time: <span>{connectTimes.join(', ')} ms</span>
-        </p>
+        <StyledTableWrapper>
+          <StyledTable>
+            <table>
+              <thead>
+                <tr>
+                  <StyledTh onClick={() => handleColumnClick('id')}>Sample #</StyledTh>
+                  <StyledTh onClick={() => handleColumnClick('time')}>Connect Time (ms)</StyledTh>
+                  <StyledTh onClick={() => handleColumnClick('sendByte')}>SendByte</StyledTh>
+                  <StyledTh onClick={() => handleColumnClick('receivedByte')}>ReceivedByte</StyledTh>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedRows.map((sample) => (
+                  <tr
+                    key={sample.id}
+                    style={{ color: sample.time === 'no response' ? 'red' : 'rgb(25, 125, 35)' }}
+                  >
+                    <StyledTd>{sample.id + 1}</StyledTd>
+                    <StyledTd>
+                      {sample.time === 'no response' ? 'No Response' : `${sample.time} ms`}
+                    </StyledTd>
+                    <StyledTd>{sample.sendByte}</StyledTd>
+                    <StyledTd>{sample.receivedByte}</StyledTd>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </StyledTable>
+        </StyledTableWrapper>
       </div>
-    </div>
+      </StyledSubContainer>
+    </StyledContainer>
   );
 }
-
 export default Ayooo;
