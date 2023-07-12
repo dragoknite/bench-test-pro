@@ -44,22 +44,47 @@ app.post('/benchmark', async (req, res) => {
         const startTime = Date.now();
         try {
           // Make the request using axios
-          await axios.request({
+          const response = await axios.request({
             method: task.requestType,
             url: task.url,
             data: task.requestBody,
           });
           const executionTime = Date.now() -  startTime
+          const byteSize = new TextEncoder().encode(JSON.stringify(response.data)).length
           return {
-            message: "Request Success", executionTime
+            message: "Request Success", executionTime, byteSize
           }
         } catch (error) {
-          throw error;
+          const executionTime = Date.now() - startTime
+          return {
+            message: 'Request Failed -------------------------------- ', executionTime,
+            error: error.message
+          }
         }
       })
     );
+    
+    const filteredSuccess = result.filter((el)=>{
+      return el.message === 'Request Success'
+    })
+    const filteredErrors = result.filter((el) => {
+      return el.message === 'Request Failed -------------------------------- ';
+    });
 
-    res.json({ message: 'Benchmarking complete', result });
+    const successLength = filteredSuccess.length
+    const errorLength = filteredErrors.length
+
+    let passRate = (((successLength - errorLength) / (successLength + errorLength)) * 100).toFixed(2)
+    passRate += '%'
+
+    
+    let successOverallTime = 0
+    filteredSuccess.forEach(el=>{
+      successOverallTime+= el.executionTime
+    })
+    const averageTime = (successOverallTime/successLength).toFixed(2)
+
+    res.json({ message: 'Benchmarking complete', passRate, averageTime, successLength, errorLength, filteredSuccess, filteredErrors });
   } catch (error) {
     res.status(500).json({ error: 'An error occurred during benchmarking' });
   }
