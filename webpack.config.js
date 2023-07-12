@@ -46,9 +46,9 @@ module.exports = {
     new CopyPlugin({
       patterns: [{ from: './src/frontend/style.css' }],
     }),
-    // new webpack.WatchIgnorePlugin({
-    //   paths: [/\.js$/, /\.d\.[cm]ts$/],
-    // }),
+    new webpack.WatchIgnorePlugin({
+      paths: [/\.js$/, /\.d\.[cm]ts$/],
+    }),
   ],
   devServer: {
     static: {

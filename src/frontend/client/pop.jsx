@@ -67,7 +67,7 @@ const popResult = ({ sortedRows, sampleCount }) => {
     labels: ['Responses Received', 'Responses Missed'],
     datasets: [
       { 
-        labels: 'ayooooo',
+        labels: 'Responses Received Rate',
         data: [sampleCount - missingSamples, missingSamples],
         backgroundColor: ['rgb(40, 165, 50)', 'rgb(200, 50, 75)'],
         hoverBackgroundColor: ['rgb(50, 200, 60)', 'rgb(225, 75, 85)'],
@@ -80,7 +80,7 @@ const popResult = ({ sortedRows, sampleCount }) => {
         labels: labels,
         datasets: [
         {
-          label: 'Connect Time',
+          label: 'Each Sample Time',
           data: labelsTime,
           backgroundColor: 'rgba(75, 192, 192, 0.2)',
           borderColor: 'rgba(75, 192, 192, 1)',
@@ -99,39 +99,42 @@ const popResult = ({ sortedRows, sampleCount }) => {
       
         <ChartContainer style={{ border: 'ridge 2px black', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0px 0px 7px rgba(0, 0, 0, 0.35)' }}>
           <StyledSubSubContainer style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <p style={{ alignSelf: 'center' }}>Total Sample Time:</p>
-            <p style={{ alignSelf: 'center' }}>{Math.round(totalTime).toFixed(2)} ms</p>
+            <p style={{ alignSelf: 'center' }}>Total Sample Time: {Math.round(totalTime).toFixed(2)} ms</p>
+            <p style={{ alignSelf: 'center' }}>Average Sample Time: {Math.round(totalTime/(sampleCount - missingSamples)).toFixed(2)} ms</p>
           </StyledSubSubContainer>
         </ChartContainer>
 
         <ChartContainer style={{ border: 'ridge 2px black', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0px 0px 7px rgba(0, 0, 0, 0.35)' }}>
           <StyledSubSubContainer style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <p style={{ alignSelf: 'center' }}>Breakpoint:</p>
-            <p style={{ alignSelf: 'center' }}>{breakPoint ? "Sample # " + breakPoint : "Not Available"}</p>
+            <p style={{ alignSelf: 'center' }}>Breakpoint</p>
+            <p style={{ alignSelf: 'center', fontSize: '20px', fontWeight: 'bold', color: 'rgb(150, 40, 50)' }}>{breakPoint ? "Sample # " + breakPoint : "Not Available"}</p>
+          </StyledSubSubContainer>
+        </ChartContainer>
+
+        <ChartContainer style={{ border: 'ridge 2px black', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0px 0px 7px rgba(0, 0, 0, 0.35)' }}>
+          <StyledSubSubContainer style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <p style={{ alignSelf: 'center' }}>Total Requests: {sampleCount}</p>
+            <p style={{ alignSelf: 'center' }}>Fail Requests: {missingSamples}</p>
           </StyledSubSubContainer>
         </ChartContainer>
 
         <ChartContainer style={{ border: 'ridge 2px black', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0px 0px 7px rgba(0, 0, 0, 0.35)' }}>
           <StyledSubSubContainer>
-            <p>Missing/Error Rate: {Math.round(missingSamples / sampleCount * 100).toFixed(2)} %</p>
-          </StyledSubSubContainer>
-        </ChartContainer>
-
-        <ChartContainer style={{ border: 'ridge 2px black', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0px 0px 7px rgba(0, 0, 0, 0.35)' }}>
-          <StyledSubSubContainer>
-            <p>Total Requests: {sampleCount}</p>
-          </StyledSubSubContainer>  
-          <StyledSubSubContainer>
-            <p>Fail Requests: {missingSamples}</p>
-          </StyledSubSubContainer>
-        </ChartContainer>
-
-        <ChartContainer style={{ border: 'ridge 2px black', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0px 0px 7px rgba(0, 0, 0, 0.35)' }}>
-        
-          <StyledSubSubContainer>
-            <p>Connect Time</p>
             <Line data={barData} />
           </StyledSubSubContainer>
+        </ChartContainer>
+
+        <ChartContainer style={{ border: 'ridge 2px black', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0px 0px 7px rgba(0, 0, 0, 0.35)' }}>
+            {breakPoint > 0 ? (
+                <StyledSubSubContainer style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <p style={{ alignSelf: 'center' }}>We do recommend Rate limiting</p>
+                <p style={{ alignSelf: 'center', fontSize: '40px', fontWeight: 'bold', color: 'rgb(40, 175, 80)' }}>{Math.round(breakPoint * 0.6)}</p>
+                </StyledSubSubContainer>
+            ) : (
+                <StyledSubSubContainer style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <p style={{ alignSelf: 'center', fontSize: '20px', fontWeight: 'bold', color: 'rgb(40, 150, 70)' }}>So far so good!</p>
+                </StyledSubSubContainer>
+            )}
         </ChartContainer>
 
         <ChartContainer style={{ border: 'ridge 2px black', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0px 0px 7px rgba(0, 0, 0, 0.35)' }}>
