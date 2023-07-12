@@ -61,7 +61,7 @@ const popResult = ({ sortedRows, sampleCount }) => {
     labels: ['Successful Rate', 'Missing/Error Rate'],
     datasets: [
       {
-        data: [sampleCount, missingSamples],
+        data: [sampleCount - missingSamples, missingSamples],
         backgroundColor: ['rgb(40, 165, 50)', 'rgb(200, 50, 75)'],
         hoverBackgroundColor: ['rgb(50, 200, 60)', 'rgb(225, 75, 85)'],
       },
@@ -86,7 +86,7 @@ const popResult = ({ sortedRows, sampleCount }) => {
   
         <ChartContainer style = {{ border: 'solid 2px black', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
           <StyledSubSubContainer>
-            <p>Missing/Error Rate: {Math.round((missingSamples / sampleCount) * 100 * 100) / 100}%</p>
+            <p>Missing/Error Rate: {Math.round(missingSamples / sampleCount * 100).toFixed(3) + '%'}</p>
           </StyledSubSubContainer>
         </ChartContainer>
   
