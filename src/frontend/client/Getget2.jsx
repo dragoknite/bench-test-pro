@@ -212,16 +212,6 @@ function Ayooo() {
   const handleShowResult = () => {
   
     const analysisWindow = window.open('', 'Analysis', 'width=800,height=600');
-
-    // const styles = `
-    // body {
-    //   background-color: red;
-    // }
-    // `
-
-    // const styleElement = analysisWindow.document.createElement('style')
-    // styleElement.textContent = styles;
-    // analysisWindow.document.head.appendChild(styleElement)
   
     const popResultElement = React.createElement(popResult, {
       sortedRows: sortedRows,
