@@ -1,0 +1,17 @@
+version: '3'
+services:
+  ts-node-docker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base
+    volumes:
+      - ./src:/usr/src/app
+      - ./nodemon.json:/usr/src/app/nodemon.json
+      - node_modules:/usr/src/app/node_modules
+    container_name: 'btp-prod'
+    image: dragoknite/bench-test-pro-prod
+    ports:
+      - "8080:8080"
+volumes:
+  node_modules:

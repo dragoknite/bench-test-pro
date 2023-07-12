@@ -6,12 +6,17 @@ import express, {
 } from 'express';
 const app = express();
 const PORT = 3000;
+const path = require('path');
 
 // parse incoming JSON
 app.use(express.json());
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Testing Hello, World Testing');
+});
+
+app.get('/test001', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 // global error middleware

@@ -1,0 +1,6 @@
+version: '3'
+services:
+  ts-node-docker:
+    build:
+      target: production
+    command: npm run start
