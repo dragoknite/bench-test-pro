@@ -1,0 +1,38 @@
+appId: abcsefg3333
+productName: Bench Test Pro
+files:
+  - dist/**/*
+  - ./src/backend/icon.png
+  - ./src/backend/icon.ico
+  - ./src/backend/icon.icns
+  - filter: "!./Makefile"
+  - filter: "!./Dockerfile"
+  - filter: "!./docker-compose.yml"
+  - filter: "!./docker-compose-prod.yml"
+directories:
+  output: release-builds/${os}
+mac:
+  target:
+    - dmg
+dmg:
+  # icon: src/backend/icon.ico
+  contents:
+    - x: 110
+      y: 150
+    - x: 240
+      y: 150
+      type: link
+      path: /Applications
+win:
+  target:
+    - zip
+    - nsis
+  # icon: src/backend/icon.ico
+  publish:
+    provider: github
+    # releaseType: release
+    publishAutoUpdate: false
+linux:
+  target:
+    - AppImage
+  category: Utility
