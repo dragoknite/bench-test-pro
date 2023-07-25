@@ -5,10 +5,6 @@ files:
   - ./src/backend/icon.png
   - ./src/backend/icon.ico
   - ./src/backend/icon.icns
-  - filter: "!./Makefile"
-  - filter: "!./Dockerfile"
-  - filter: "!./docker-compose.yml"
-  - filter: "!./docker-compose-prod.yml"
 directories:
   output: release-builds/${os}
 mac:

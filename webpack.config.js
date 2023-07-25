@@ -2,8 +2,10 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
 module.exports = {
-  mode: 'development',
+  mode: isDevelopment ? 'development' : 'production',
   entry: './src/frontend/client/main.tsx',
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -33,6 +35,14 @@ module.exports = {
           },
         ],
       },
+      // {
+      //   // loads .html files
+      //   test: /\.(html)$/,
+      //   include: [path.resolve(__dirname, "./src")],
+      //   use: {
+      //       loader: "html-loader"
+      //   }
+      // },
     ],
   },
   resolve: {
@@ -46,16 +56,14 @@ module.exports = {
     new CopyPlugin({
       patterns: [{ from: './src/frontend/style.css' }],
     }),
-    // new webpack.WatchIgnorePlugin({
-    //   paths: [/\.js$/, /\.d\.[cm]ts$/],
-    // }),
   ],
   devServer: {
+    port: 3351,
     static: {
       directory: path.join(__dirname, './dist'),
     },
     proxy: {
-      '/api': 'http://localhost:3000',
+      '/api': 'http://localhost:4000',
       secure: false,
     },
   },

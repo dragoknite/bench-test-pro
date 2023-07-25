@@ -3,45 +3,42 @@ import styled, { keyframes, css } from 'styled-components';
 import ReactDOM from 'react-dom';
 import popResult from './pop';
 
-
 const StyledContainer = styled.div`
   width: 710px;
-  border: 5px ridge rgb(3, 45, 67);
+  border: 10px ridge rgb(25, 25, 25);
   /* Media query for smaller screens */
   @media (max-width: 700px) {
     min-width: 700px;
   }
 `;
+
 const StyledSubContainer = styled.div`
 
   width: 700px;
   margin: 5px;
 `;
 
-
 const StyledParaDiv = styled.div`
   display: inline-block;
   vertical-align: top;
 `;
+
 const StyledParaDiv2 = styled.div`
   display: inline-block;
   vertical-align: top;
   margin-left: 10px;
 `;
 
-
-
 const StyledSmallDiv = styled.div`
   margin: 15px 0px;
   display: flex;
-
 `;
-
 
 const StyledApiURLinput = styled.input`
   width: 400px;
   font-size: 12px;
 `;
+
 const StyledSampleinput = styled.input`
   width: 75px;
   font-size: 12px;
@@ -60,7 +57,7 @@ const StyleRequestBodyInput = styled.textarea`
 
 const StyledTableWrapper = styled.div`
   width: 690px;
-  border: 5px ridge rgb(3, 45, 67);
+  border: 5px ridge rgb(25, 25, 25);
 `;
 
 const StyledTable = styled.table`
@@ -74,6 +71,7 @@ const StyledTh = styled.th`
   position: relative;
   width: 150px;
   border: 1px solid #555;
+  borderRadius: 10px;
   background-color: rgb(0, 10, 30);
   color: #fff;
   padding: 8px;
@@ -98,6 +96,79 @@ const StyledTd = styled.td`
     vertical-align: middle;
 `;
 
+const glowingButton = keyframes`
+  0% {
+    background-position: 0 0;
+  }
+  50% {
+    background-position: 400% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+`;
+
+const Button = styled.button`
+  padding: 0.6em 2em;
+  border: none;
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  position: relative;
+  z-index: 0;
+  border-radius: 10px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  margin-left: 1rem;
+  
+  &:before {
+    content: "";
+    background: linear-gradient(
+      45deg,
+      #ff0000,
+      #ff7300,
+      #fffb00,
+      #48ff00,
+      #00ffd5,
+      #002bff,
+      #7a00ff,
+      #ff00c8,
+      #ff0000
+    );
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    background-size: 200%;
+    z-index: -1;
+    filter: blur(4px);
+    -webkit-filter: blur(4px);
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    animation: ${glowingButton} 10s infinite;
+    transition: opacity 0.3s cubic-bezier(0.1, -0.6, 0.2, 0);
+    border-radius: 10px;
+  }
+
+  &:after {
+    z-index: -1;
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #222;
+    left: 0;
+    top: 0;
+    border-radius: 10px;
+  }
+
+  /* Additional class for removing the gradient styling */
+  &.no-gradient {
+    &:before {
+      display: none;
+    }
+  }
+`;
+
 
 
 function Ayooo() {
@@ -109,6 +180,7 @@ function Ayooo() {
   const [sortDirection, setSortDirection] = useState('asc');
   const [timeDontShowSummary, setTimeDontShowSummary] = useState(true);
   const [selectedMethod, setSelectedMethod] = useState('GET');
+  const [timeDontRun, setTimeDontRun] = useState(false);
 
 
   const handleColumnClick = (column) => {
@@ -140,16 +212,6 @@ function Ayooo() {
   const handleShowResult = () => {
   
     const analysisWindow = window.open('', 'Analysis', 'width=800,height=600');
-
-    // const styles = `
-    // body {
-    //   background-color: red;
-    // }
-    // `
-
-    // const styleElement = analysisWindow.document.createElement('style')
-    // styleElement.textContent = styles;
-    // analysisWindow.document.head.appendChild(styleElement)
   
     const popResultElement = React.createElement(popResult, {
       sortedRows: sortedRows,
@@ -164,6 +226,7 @@ function Ayooo() {
   const handleRunRequest = () => {
     if(timeDontShowSummary === false){
       setTimeDontShowSummary(true);
+      setTimeDontRun(true);
     }
     if(selectedMethod === 'GET'){
       getDataFromAPI();
@@ -233,6 +296,7 @@ function Ayooo() {
       })
       .then(() => {
         setTimeDontShowSummary(false);
+        setTimeDontRun(false);
       })
       .catch((error) => {
       });
@@ -292,6 +356,7 @@ function Ayooo() {
       })
       .then(() => {
         setTimeDontShowSummary(false);
+        setTimeDontRun(false);
       })
       .catch((error) => {
       });
@@ -351,6 +416,7 @@ function Ayooo() {
       })
       .then(() => {
         setTimeDontShowSummary(false);
+        setTimeDontRun(false);
       })
       .catch((error) => {
       });
@@ -410,6 +476,7 @@ function Ayooo() {
       })
       .then(() => {
         setTimeDontShowSummary(false);
+        setTimeDontRun(false);
       })
       .catch((error) => {
       });
@@ -467,6 +534,7 @@ function Ayooo() {
       })
       .then(() => {
         setTimeDontShowSummary(false);
+        setTimeDontRun(false);
       })
       .catch((error) => {
       });
@@ -547,12 +615,12 @@ function Ayooo() {
           value={sampleCount}
           onChange={(e) => setSampleCount(parseInt(e.target.value))}
           />
-          <button id="run-request-button" onClick={handleRunRequest}>
+          <Button id="run-request-button" onClick={handleRunRequest} disabled={timeDontRun} className={timeDontRun && timeDontShowSummary ? 'no-gradient' : ''}>
             Run Request
-          </button>
-          <button id="show-result-button" onClick={handleShowResult} disabled={timeDontShowSummary}>
+          </Button>
+          <Button id="show-result-button" onClick={handleShowResult} disabled={timeDontShowSummary} className={timeDontRun && timeDontShowSummary ? 'no-gradient' : ''}>
             Show Analyzation
-          </button>
+          </Button>
           <br />
         </StyledSmallDiv>
         <StyledSmallDiv>
